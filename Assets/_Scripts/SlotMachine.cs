@@ -9,6 +9,7 @@ public class SlotMachine : MonoBehaviour {
 	private int _jackpot = 5000;
 	private float _turn = 0.0f;
 	private int _playerBet = 0;
+
 	private float _winNumber = 0.0f;
 	private float _lossNumber = 0.0f;
 	private string[] _spinResult;
@@ -24,11 +25,16 @@ public class SlotMachine : MonoBehaviour {
 	private int _sevens = 0;
 	private int _blanks = 0;
 
+	const float _OUT_OF_SCREEN = 3000.0f;
+	private bool _isSpinned = false;
+	private float _defaultPositionXDisabledButton = 0.0f;
+
 	private GameObject _thankYouImage;
 	private GameObject _playerMoneyText;
 	private GameObject _playerBetText;
 	private GameObject _winningsText;
 	private GameObject _jackpotText;
+	private GameObject _spinDisabledButton;
 
 	// Use this for initialization
 	void Start () {
@@ -37,16 +43,37 @@ public class SlotMachine : MonoBehaviour {
 		_playerBetText = GameObject.Find("playerBetText");
 		_winningsText = GameObject.Find("winningsText");
 		_jackpotText = GameObject.Find("jackpotText");
+		_spinDisabledButton = GameObject.Find("spinDisabledButton");
 
+		//if (_defaultPositionYDisabledButton == 0.0f) { // since start method is called two times
+		_defaultPositionXDisabledButton = 512.0f;//_spinDisabledButton.transform.position.x;
+		//}	
+
+		Debug.Log (_defaultPositionXDisabledButton);
 
 		_resetAll ();
 	}
 
 	private void _refresh () {
+		if (_playerMoney == 0 || _playerBet > _playerMoney || _playerBet < 0) {
+			_setActive(_spinDisabledButton, true); // need to show disabled button
+		} else {
+			_setActive(_spinDisabledButton, false); // hide disabled button
+		}
+
 		_setText (_playerMoneyText, _playerMoney.ToString());
 		_setText (_jackpotText, _jackpot.ToString ());
 		_setText (_playerBetText, _playerBet.ToString ());
 		_setText (_winningsText, _winnings.ToString ());
+	}
+	private void _setActive(GameObject gameObject, bool isActive) {
+		
+		if (isActive) {
+			gameObject.transform.position = new Vector2 (_defaultPositionXDisabledButton, gameObject.transform.position.y);
+		} else {
+			gameObject.transform.position = new Vector2 (_OUT_OF_SCREEN, gameObject.transform.position.y);
+		}
+		//gameObject.SetActive (true);
 	}
 	private void _setText(GameObject gameObject, string text) {
 		gameObject.GetComponent<Text>().text = text;
@@ -88,7 +115,7 @@ public class SlotMachine : MonoBehaviour {
 		_winnings = 0;
 		_jackpot = 5000;
 		_turn = 0;
-		_playerBet = 0;
+		_playerBet = 10; // default bet amount
 		_winNumber = 0;
 		_lossNumber = 0;
 		_winRatio = 0.0f;
@@ -264,27 +291,7 @@ public class SlotMachine : MonoBehaviour {
 
 	public void onSpinButtonClick()
 	{
-		_playerBet = 10; // default bet amount
-
-		if (_playerMoney == 0)
-		{
-			/*
-			if (Debug.Log("You ran out of Money! \nDo you want to play again?","Out of Money!",MessageBoxButtons.YesNo) == DialogResult.Yes)
-			{
-				resetAll();
-				showPlayerStats();
-			}
-			*/
-		}
-		else if (_playerBet > _playerMoney)
-		{
-			Debug.Log("You don't have enough Money to place that bet.");
-		}
-		else if (_playerBet < 0)
-		{
-			Debug.Log("All bets must be a positive $ amount.");
-		}
-		else if (_playerBet <= _playerMoney)
+		if (_playerBet <= _playerMoney)
 		{
 			_spinResult = _reels();
 			_fruits = _spinResult[0] + " - " + _spinResult[1] + " - " + _spinResult[2];
@@ -298,6 +305,7 @@ public class SlotMachine : MonoBehaviour {
 		{
 			Debug.Log("Please enter a valid bet amount");
 		}
+		_isSpinned = true;
 		_refresh ();
 	}
 	public void onResetButtonClick()
@@ -309,5 +317,19 @@ public class SlotMachine : MonoBehaviour {
 	{
 		Debug.Log("Quit application");
 		_thankYouImage.transform.position = new Vector2 (_thankYouImage.transform.position.x, 300.0f);
+	}
+	public void onBetButtonClick(int value)
+	{
+		if (_isSpinned) { // when user wants to continue using previous betting amount.
+			_playerBet = value;
+		} else { // when user wants to set betting amount again.
+			_playerBet += value;		
+		}
+		_isSpinned = false;
+		_refresh ();
+	}
+	public void onCreditButtonClick(int value) {
+		_isSpinned = true; // Bet starts from 
+		_refresh ();
 	}
 }
