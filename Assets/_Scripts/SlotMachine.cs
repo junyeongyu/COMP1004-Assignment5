@@ -329,7 +329,7 @@ public class SlotMachine : MonoBehaviour {
 		_refresh ();
 	}
 	public void onCreditButtonClick(int value) {
-		_isSpinned = true; // Bet starts from 
+		_isSpinned = true; // In order to start betting again from start 
 		_refresh ();
 	}
 }
