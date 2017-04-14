@@ -12,8 +12,8 @@ public class SlotMachine : MonoBehaviour {
 
 	private float _winNumber = 0.0f;
 	private float _lossNumber = 0.0f;
-	private string[] _spinResult;
-	private string _fruits = "";
+	private int[] _spinResult = new int[] {7, 7, 7};
+	private string[] _fruits = {"blank", "grapes", "banana", "orange", "cherry", "bar", "bell", "seven"};
 	private float _winRatio = 0.0f;
 	private float _lossRatio = 0.0f;
 	private int _grapes = 0;
@@ -25,12 +25,22 @@ public class SlotMachine : MonoBehaviour {
 	private int _sevens = 0;
 	private int _blanks = 0;
 
-	const float _OUT_OF_SCREEN = 4000.0f;
+	private int _BLANK = 0;
+	private int _GRAPES = 1;
+	private int _BANANA = 2;
+	private int _ORANGE = 3;
+	private int _CHERRY = 4;
+	private int _BAR = 5;
+	private int _BELL = 6;
+	private int _SEVEN = 7;
+
+	private const float _OUT_OF_SCREEN = 4000.0f;
 	private bool _isSpinned = false;
 	private bool _isJackpot = false;
 
 	private const float _defaultPositionXDisabledButton = 512.0f;
 	private const float _defaultPositionXJackpotWinImage = 0.0f;
+	private const float _defaultPositionYFruitsImage = -0.33f;
 
 	private GameObject _thankYouImage;
 	private GameObject _playerMoneyText;
@@ -40,6 +50,9 @@ public class SlotMachine : MonoBehaviour {
 	private GameObject _spinDisabledButton;
 	private GameObject _jackpotWinImage;
 	private GameObject _jackpotWinText;
+	private GameObject[] _fruitOnes;
+	private GameObject[] _fruitTwos;
+	private GameObject[] _fruitThrees;
 
 	// Use this for initialization
 	void Start () {
@@ -51,27 +64,50 @@ public class SlotMachine : MonoBehaviour {
 		_spinDisabledButton = GameObject.Find("spinDisabledButton");
 		_jackpotWinImage = GameObject.Find("jackpotWinImage");
 		_jackpotWinText = GameObject.Find("jackpotWinText");
-
+		_fruitOnes = new GameObject[_fruits.Length];
+		_fruitTwos = new GameObject[_fruits.Length];
+		_fruitThrees = new GameObject[_fruits.Length];
+		for (int i = 0; i < _fruits.Length; i++) { // Load all fruits game object
+			_fruitOnes[i] = GameObject.Find(_fruits[i] + "One");
+			_fruitTwos[i] = GameObject.Find(_fruits[i] + "Two");
+			_fruitThrees[i] = GameObject.Find(_fruits[i] + "Three");
+		}
 		//Debug.Log (_jackpotWinImage.transform.position.x);
 
 		_resetAll ();
 	}
 
 	private void _refresh () {
+		// When user doet not have enough money to bet, spin button is disabled
 		if (_playerMoney == 0 || _playerBet > _playerMoney || _playerBet < 0) {
 			_setActiveDisabledButton(_spinDisabledButton, true); // need to show disabled button
 		} else {
 			_setActiveDisabledButton(_spinDisabledButton, false); // hide disabled button
 		}
 
-		//Debug.Log (gameObject.transform.position.y);
+		// When user wins jackpot, user can see message.
 		_setActiveJackpotWinImage (_isJackpot);
 		_isJackpot = false; // after showing jackpot, it needs to be hidden. 
 
+		// Setting data into each UI text.
 		_setText (_playerMoneyText, _playerMoney.ToString());
 		_setText (_jackpotText, _jackpot.ToString ());
 		_setText (_playerBetText, _playerBet.ToString ());
 		_setText (_winningsText, _winnings.ToString ());
+
+		// Selecting proper the fruits images that slot machine chooses
+		for (int i = 0; i < _fruits.Length; i++) {
+			_setActiveFruitsImage (_fruitOnes [i], _spinResult[0] == i);
+			_setActiveFruitsImage (_fruitTwos [i], _spinResult[1] == i);
+			_setActiveFruitsImage (_fruitThrees [i], _spinResult[2] == i);
+		}
+	}
+	private void _setActiveFruitsImage(GameObject gameObject, bool isActive) {
+		if (isActive) {
+			gameObject.transform.position = new Vector2 (gameObject.transform.position.x, _defaultPositionYFruitsImage);
+		} else {
+			gameObject.transform.position = new Vector2 (gameObject.transform.position.x, _OUT_OF_SCREEN);
+		}
 	}
 	private void _setActiveDisabledButton(GameObject gameObject, bool isActive) {
 		if (isActive) {
@@ -132,6 +168,7 @@ public class SlotMachine : MonoBehaviour {
 		_winNumber = 0;
 		_lossNumber = 0;
 		_winRatio = 0.0f;
+		_spinResult = new int[] {7, 7, 7};
 
 		_refresh ();
 	}
@@ -177,9 +214,9 @@ public class SlotMachine : MonoBehaviour {
 
 	/* When this function is called it determines the betLine results.
     e.g. Bar - Orange - Banana */
-	private string[] _reels()
+	private int[] _reels()
 	{
-		string[] betLine = { " ", " ", " " };
+		int[] betLine = {_BLANK, _BLANK, _BLANK};
 		int[] outCome = { 0, 0, 0 };
 
 		for (var spin = 0; spin < 3; spin++)
@@ -187,38 +224,37 @@ public class SlotMachine : MonoBehaviour {
 			outCome[spin] = Random.Range(1,65);
 
 			if (_checkRange(outCome[spin], 1, 27)) {  // 41.5% probability
-				betLine[spin] = "blank";
+				betLine[spin] = _BLANK;
 				_blanks++;
 			}
 			else if (_checkRange(outCome[spin], 28, 37)){ // 15.4% probability
-				betLine[spin] = "Grapes";
+				betLine[spin] = _GRAPES;
 				_grapes++;
 			}
 			else if (_checkRange(outCome[spin], 38, 46)){ // 13.8% probability
-				betLine[spin] = "Banana";
+				betLine[spin] = _BANANA;
 				_bananas++;
 			}
 			else if (_checkRange(outCome[spin], 47, 54)){ // 12.3% probability
-				betLine[spin] = "Orange";
+				betLine[spin] = _ORANGE;
 				_oranges++;
 			}
 			else if (_checkRange(outCome[spin], 55, 59)){ //  7.7% probability
-				betLine[spin] = "Cherry";
+				betLine[spin] = _CHERRY;
 				_cherries++;
 			}
 			else if (_checkRange(outCome[spin], 60, 62)){ //  4.6% probability
-				betLine[spin] = "Bar";
+				betLine[spin] = _BAR;
 				_bars++;
 			}
 			else if (_checkRange(outCome[spin], 63, 64)){ //  3.1% probability
-				betLine[spin] = "Bell";
+				betLine[spin] = _BELL;
 				_bells++;
 			}
 			else if (_checkRange(outCome[spin], 65, 65)){ //  1.5% probability
-				betLine[spin] = "Seven";
+				betLine[spin] = _SEVEN;
 				_sevens++;
 			}
-
 		}
 		return betLine;
 	}
@@ -309,8 +345,8 @@ public class SlotMachine : MonoBehaviour {
 		if (_playerBet <= _playerMoney)
 		{
 			_spinResult = _reels();
-			_fruits = _spinResult[0] + " - " + _spinResult[1] + " - " + _spinResult[2];
-			Debug.Log(_fruits);
+			//_fruits = _spinResult[0] + " - " + _spinResult[1] + " - " + _spinResult[2];
+			//Debug.Log(_fruits);
 			_playerMoney -= _playerBet; // regardless of winning or losing, user need to pay for every game
 			_determineWinnings();
 			_turn++;
