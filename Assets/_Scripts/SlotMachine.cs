@@ -140,15 +140,15 @@ public class SlotMachine : MonoBehaviour {
 	private void _checkJackPot()
 	{
 		/* compare two random values */
-		var jackPotTry = Random.Range (1, 21);
-		var jackPotWin = Random.Range (1, 21);
+		var jackPotTry = Random.Range (1, 31);
+		var jackPotWin = Random.Range (1, 31);
 		if (jackPotTry == jackPotWin)
 		{
 			Debug.Log("You Won the $" + _jackpot + " Jackpot!!");
 			_setText (_jackpotWinText, "You Won the $" + _jackpot + " Jackpot!!");
 			_isJackpot = true;
 			_playerMoney += _jackpot;
-			_jackpot = 1000;
+			_jackpot = 300;
 		}
 	}
 
@@ -301,7 +301,7 @@ public class SlotMachine : MonoBehaviour {
 			_showLossMessage();
 			_winnings = 0;
 		}
-		_jackpot += _playerBet / 5; // Add the ratio of player bet to jackpot
+		_jackpot += _playerBet / 3; // Add the ratio of player bet to jackpot
 	}
 
 	public void onSpinButtonClick()
