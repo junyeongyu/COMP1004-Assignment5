@@ -25,9 +25,12 @@ public class SlotMachine : MonoBehaviour {
 	private int _sevens = 0;
 	private int _blanks = 0;
 
-	const float _OUT_OF_SCREEN = 3000.0f;
+	const float _OUT_OF_SCREEN = 4000.0f;
 	private bool _isSpinned = false;
-	private float _defaultPositionXDisabledButton = 0.0f;
+	private bool _isJackpot = false;
+
+	private const float _defaultPositionXDisabledButton = 512.0f;
+	private const float _defaultPositionXJackpotWinImage = 0.0f;
 
 	private GameObject _thankYouImage;
 	private GameObject _playerMoneyText;
@@ -35,6 +38,8 @@ public class SlotMachine : MonoBehaviour {
 	private GameObject _winningsText;
 	private GameObject _jackpotText;
 	private GameObject _spinDisabledButton;
+	private GameObject _jackpotWinImage;
+	private GameObject _jackpotWinText;
 
 	// Use this for initialization
 	void Start () {
@@ -44,36 +49,44 @@ public class SlotMachine : MonoBehaviour {
 		_winningsText = GameObject.Find("winningsText");
 		_jackpotText = GameObject.Find("jackpotText");
 		_spinDisabledButton = GameObject.Find("spinDisabledButton");
+		_jackpotWinImage = GameObject.Find("jackpotWinImage");
+		_jackpotWinText = GameObject.Find("jackpotWinText");
 
-		//if (_defaultPositionYDisabledButton == 0.0f) { // since start method is called two times
-		_defaultPositionXDisabledButton = 512.0f;//_spinDisabledButton.transform.position.x;
-		//}	
-
-		Debug.Log (_defaultPositionXDisabledButton);
+		//Debug.Log (_jackpotWinImage.transform.position.x);
 
 		_resetAll ();
 	}
 
 	private void _refresh () {
 		if (_playerMoney == 0 || _playerBet > _playerMoney || _playerBet < 0) {
-			_setActive(_spinDisabledButton, true); // need to show disabled button
+			_setActiveDisabledButton(_spinDisabledButton, true); // need to show disabled button
 		} else {
-			_setActive(_spinDisabledButton, false); // hide disabled button
+			_setActiveDisabledButton(_spinDisabledButton, false); // hide disabled button
 		}
+
+		//Debug.Log (gameObject.transform.position.y);
+		_setActiveJackpotWinImage (_isJackpot);
+		_isJackpot = false; // after showing jackpot, it needs to be hidden. 
 
 		_setText (_playerMoneyText, _playerMoney.ToString());
 		_setText (_jackpotText, _jackpot.ToString ());
 		_setText (_playerBetText, _playerBet.ToString ());
 		_setText (_winningsText, _winnings.ToString ());
 	}
-	private void _setActive(GameObject gameObject, bool isActive) {
-		
+	private void _setActiveDisabledButton(GameObject gameObject, bool isActive) {
 		if (isActive) {
 			gameObject.transform.position = new Vector2 (_defaultPositionXDisabledButton, gameObject.transform.position.y);
 		} else {
 			gameObject.transform.position = new Vector2 (_OUT_OF_SCREEN, gameObject.transform.position.y);
 		}
-		//gameObject.SetActive (true);
+	}
+	private void _setActiveJackpotWinImage(bool isActive) {
+		GameObject gameObject = _jackpotWinImage;
+		if (isActive) {
+			gameObject.transform.position = new Vector2 (_defaultPositionXJackpotWinImage, gameObject.transform.position.y);
+		} else {
+			gameObject.transform.position = new Vector2 (_OUT_OF_SCREEN, gameObject.transform.position.y);
+		}
 	}
 	private void _setText(GameObject gameObject, string text) {
 		gameObject.GetComponent<Text>().text = text;
@@ -127,11 +140,13 @@ public class SlotMachine : MonoBehaviour {
 	private void _checkJackPot()
 	{
 		/* compare two random values */
-		var jackPotTry = Random.Range (1, 51);
-		var jackPotWin = Random.Range (1, 51);
+		var jackPotTry = Random.Range (1, 21);
+		var jackPotWin = Random.Range (1, 21);
 		if (jackPotTry == jackPotWin)
 		{
 			Debug.Log("You Won the $" + _jackpot + " Jackpot!!");
+			_setText (_jackpotWinText, "You Won the $" + _jackpot + " Jackpot!!");
+			_isJackpot = true;
 			_playerMoney += _jackpot;
 			_jackpot = 1000;
 		}
@@ -286,7 +301,7 @@ public class SlotMachine : MonoBehaviour {
 			_showLossMessage();
 			_winnings = 0;
 		}
-
+		_jackpot += _playerBet / 5; // Add the ratio of player bet to jackpot
 	}
 
 	public void onSpinButtonClick()
