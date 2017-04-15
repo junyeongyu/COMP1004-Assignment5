@@ -53,6 +53,9 @@ public class SlotMachine : MonoBehaviour {
 	private GameObject[] _fruitOnes;
 	private GameObject[] _fruitTwos;
 	private GameObject[] _fruitThrees;
+	private GameObject _spinButton;
+	private GameObject _resetButton;
+	private GameObject _quitButton;
 
 	// Use this for initialization
 	void Start () {
@@ -72,8 +75,9 @@ public class SlotMachine : MonoBehaviour {
 			_fruitTwos[i] = GameObject.Find(_fruits[i] + "Two");
 			_fruitThrees[i] = GameObject.Find(_fruits[i] + "Three");
 		}
-		//Debug.Log (_jackpotWinImage.transform.position.x);
-
+		_spinButton = GameObject.Find ("spinButton");
+		_resetButton = GameObject.Find ("resetButton");
+		_quitButton = GameObject.Find ("quitButton");
 		_resetAll ();
 	}
 
@@ -194,6 +198,7 @@ public class SlotMachine : MonoBehaviour {
 	{
 		_playerMoney += _winnings;
 		Debug.Log("You Won: $" + _winnings);
+		gameObject.GetComponent<AudioSource>().Play (); // winning sound
 		_resetFruitTally();
 		_checkJackPot();
 	}
@@ -357,16 +362,20 @@ public class SlotMachine : MonoBehaviour {
 		}
 		_isSpinned = true;
 		_refresh ();
+
+		_spinButton.GetComponent<AudioSource>().Play (); // spinng sound
 	}
 	public void onResetButtonClick()
 	{
 		_resetAll ();
+		_resetButton.GetComponent<AudioSource>().Play (); // reset sound
 		Debug.Log("Initialze playerMoney to " + _playerMoney + ", jackpot to " + _jackpot);
 	}
 	public void onQuitButtonClick()
 	{
 		Debug.Log("Quit application");
 		_thankYouImage.transform.position = new Vector2 (_thankYouImage.transform.position.x, 300.0f);
+		_quitButton.GetComponent<AudioSource>().Play (); // quit sound
 	}
 	public void onBetButtonClick(int value)
 	{
@@ -377,6 +386,7 @@ public class SlotMachine : MonoBehaviour {
 		}
 		_isSpinned = false;
 		_refresh ();
+		_resetButton.GetComponent<AudioSource>().Play (); // betting sound
 	}
 	public void onCreditButtonClick(int value) {
 		_isSpinned = true; // In order to start betting again from start 
