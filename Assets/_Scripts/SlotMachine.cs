@@ -345,8 +345,7 @@ public class SlotMachine : MonoBehaviour {
 		if (_playerBet <= _playerMoney)
 		{
 			_spinResult = _reels();
-			//_fruits = _spinResult[0] + " - " + _spinResult[1] + " - " + _spinResult[2];
-			//Debug.Log(_fruits);
+			Debug.Log(_fruits[_spinResult[0]] + " - " + _fruits[_spinResult[1]] + " - " + _fruits[_spinResult[2]]);
 			_playerMoney -= _playerBet; // regardless of winning or losing, user need to pay for every game
 			_determineWinnings();
 			_turn++;
