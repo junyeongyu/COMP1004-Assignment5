@@ -38,7 +38,7 @@ public class SlotMachine : MonoBehaviour {
 	private bool _isSpinned = false;
 	private bool _isJackpot = false;
 
-	private const float _defaultPositionXDisabledButton = 512.0f;
+	private const float _defaultPositionYDisabledButton = 128.0f;
 	private const float _defaultPositionXJackpotWinImage = 0.0f;
 	private const float _defaultPositionYFruitsImage = -0.33f;
 
@@ -78,6 +78,9 @@ public class SlotMachine : MonoBehaviour {
 		_spinButton = GameObject.Find ("spinButton");
 		_resetButton = GameObject.Find ("resetButton");
 		_quitButton = GameObject.Find ("quitButton");
+
+		Debug.Log (_spinDisabledButton.transform.position.y);
+
 		_resetAll ();
 	}
 
@@ -115,9 +118,9 @@ public class SlotMachine : MonoBehaviour {
 	}
 	private void _setActiveDisabledButton(GameObject gameObject, bool isActive) {
 		if (isActive) {
-			gameObject.transform.position = new Vector2 (_defaultPositionXDisabledButton, gameObject.transform.position.y);
+			gameObject.transform.position = new Vector2 (gameObject.transform.position.x, _defaultPositionYDisabledButton);
 		} else {
-			gameObject.transform.position = new Vector2 (_OUT_OF_SCREEN, gameObject.transform.position.y);
+			gameObject.transform.position = new Vector2 (gameObject.transform.position.x, _OUT_OF_SCREEN);
 		}
 	}
 	private void _setActiveJackpotWinImage(bool isActive) {
