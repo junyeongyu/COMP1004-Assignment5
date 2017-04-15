@@ -78,9 +78,6 @@ public class SlotMachine : MonoBehaviour {
 		_spinButton = GameObject.Find ("spinButton");
 		_resetButton = GameObject.Find ("resetButton");
 		_quitButton = GameObject.Find ("quitButton");
-
-		Debug.Log (_spinDisabledButton.transform.position.y);
-
 		_resetAll ();
 	}
 
