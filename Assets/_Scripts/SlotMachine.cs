@@ -1,9 +1,25 @@
-﻿using UnityEngine;
+﻿/**
+* The App name: Slot Machine
+* Author's name: Junyeong Yu (200328206)
+* App Creation Date: April 10, 2017
+* App Last Modification Date: April 14, 2017
+* App Short Revision History
+*  -           April 10, 2017: Initial Commit
+*  -           April 11, 2017: Implement minor functions and controls
+*  -           April 13, 2017: Implement Functionality of enable and disable spin buttons
+*  - 03:40 PM, April 14, 2017: Betting and jackpot functionalities
+*  - 09:20 pM, April 14, 2017: Adding furuits functions
+*  - 10:00 PM, April 14, 2017: Adding audio functions & fixing bugs
+*  - 11:00 PM, April 14, 2017: Add all necessary comments
+* App description: Play the slot maching using buttons of "Spin", "Reset", "Bet" and "Quit".
+*/
+using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 
 public class SlotMachine : MonoBehaviour {
 
+	// basic slot machine variables
 	private int _playerMoney = 1000;
 	private int _winnings = 0;
 	private int _jackpot = 5000;
@@ -25,6 +41,7 @@ public class SlotMachine : MonoBehaviour {
 	private int _sevens = 0;
 	private int _blanks = 0;
 
+	// indexes of fruits array
 	private int _BLANK = 0;
 	private int _GRAPES = 1;
 	private int _BANANA = 2;
@@ -34,14 +51,19 @@ public class SlotMachine : MonoBehaviour {
 	private int _BELL = 6;
 	private int _SEVEN = 7;
 
+	// make compenent as invisible
 	private const float _OUT_OF_SCREEN = 4000.0f;
+
+	// for checking status
 	private bool _isSpinned = false;
 	private bool _isJackpot = false;
 
+	// location information
 	private const float _defaultPositionYDisabledButton = 128.0f;
 	private const float _defaultPositionXJackpotWinImage = 0.0f;
 	private const float _defaultPositionYFruitsImage = -0.33f;
 
+	// gameobject to approace necessary function and value
 	private GameObject _thankYouImage;
 	private GameObject _playerMoneyText;
 	private GameObject _playerBetText;
@@ -81,6 +103,7 @@ public class SlotMachine : MonoBehaviour {
 		_resetAll ();
 	}
 
+	// refresh as an initial status
 	private void _refresh () {
 		// When user doet not have enough money to bet, spin button is disabled
 		if (_playerMoney == 0 || _playerBet > _playerMoney || _playerBet < 0) {
@@ -106,6 +129,7 @@ public class SlotMachine : MonoBehaviour {
 			_setActiveFruitsImage (_fruitThrees [i], _spinResult[2] == i);
 		}
 	}
+	// It functions as if components are visible or invisible for fruits images
 	private void _setActiveFruitsImage(GameObject gameObject, bool isActive) {
 		if (isActive) {
 			gameObject.transform.position = new Vector2 (gameObject.transform.position.x, _defaultPositionYFruitsImage);
@@ -113,6 +137,7 @@ public class SlotMachine : MonoBehaviour {
 			gameObject.transform.position = new Vector2 (gameObject.transform.position.x, _OUT_OF_SCREEN);
 		}
 	}
+	// It functions as if components are visible or invisible for disabled button
 	private void _setActiveDisabledButton(GameObject gameObject, bool isActive) {
 		if (isActive) {
 			gameObject.transform.position = new Vector2 (gameObject.transform.position.x, _defaultPositionYDisabledButton);
@@ -120,6 +145,7 @@ public class SlotMachine : MonoBehaviour {
 			gameObject.transform.position = new Vector2 (gameObject.transform.position.x, _OUT_OF_SCREEN);
 		}
 	}
+	// It functions as if components are visible or invisible for jackpot winning message
 	private void _setActiveJackpotWinImage(bool isActive) {
 		GameObject gameObject = _jackpotWinImage;
 		if (isActive) {
@@ -128,6 +154,7 @@ public class SlotMachine : MonoBehaviour {
 			gameObject.transform.position = new Vector2 (_OUT_OF_SCREEN, gameObject.transform.position.y);
 		}
 	}
+	// for setting text for general purpose
 	private void _setText(GameObject gameObject, string text) {
 		gameObject.GetComponent<Text>().text = text;
 	}
@@ -172,7 +199,7 @@ public class SlotMachine : MonoBehaviour {
 		_winNumber = 0;
 		_lossNumber = 0;
 		_winRatio = 0.0f;
-		_spinResult = new int[] {7, 7, 7};
+		_spinResult = new int[] {7, 7, 7}; // default showing images are 7,7,7
 
 		_refresh ();
 	}
@@ -187,7 +214,7 @@ public class SlotMachine : MonoBehaviour {
 		{
 			Debug.Log("You Won the $" + _jackpot + " Jackpot!!");
 			_setText (_jackpotWinText, "You Won the $" + _jackpot + " Jackpot!!");
-			_isJackpot = true;
+			_isJackpot = true; // it can be used in _refresh() function
 			_playerMoney += _jackpot;
 			_jackpot = 300;
 		}
@@ -200,7 +227,7 @@ public class SlotMachine : MonoBehaviour {
 		Debug.Log("You Won: $" + _winnings);
 		gameObject.GetComponent<AudioSource>().Play (); // winning sound
 		_resetFruitTally();
-		_checkJackPot();
+		_checkJackPot(); // when user win, user get probability to get jackpot
 	}
 
 	/* Utility function to show a loss message and reduce player money */
@@ -334,7 +361,7 @@ public class SlotMachine : MonoBehaviour {
 				_winnings = _playerBet * 1;
 			}
 			_winNumber++;
-			_showWinMessage();
+			_showWinMessage(); // not only showing message but also setting data
 		}
 		else
 		{
@@ -345,6 +372,7 @@ public class SlotMachine : MonoBehaviour {
 		_jackpot += _playerBet / 3; // Add the ratio of player bet to jackpot
 	}
 
+	// event handler for spin button
 	public void onSpinButtonClick()
 	{
 		if (_playerBet <= _playerMoney)
@@ -365,18 +393,21 @@ public class SlotMachine : MonoBehaviour {
 
 		_spinButton.GetComponent<AudioSource>().Play (); // spinng sound
 	}
+	// event handler for spin button
 	public void onResetButtonClick()
 	{
 		_resetAll ();
 		_resetButton.GetComponent<AudioSource>().Play (); // reset sound
 		Debug.Log("Initialze playerMoney to " + _playerMoney + ", jackpot to " + _jackpot);
 	}
+	// event handler for quit button
 	public void onQuitButtonClick()
 	{
 		Debug.Log("Quit application");
 		_thankYouImage.transform.position = new Vector2 (_thankYouImage.transform.position.x, 300.0f);
 		_quitButton.GetComponent<AudioSource>().Play (); // quit sound
 	}
+	// event handler for betting buttons
 	public void onBetButtonClick(int value)
 	{
 		if (_isSpinned) { // when user wants to continue using previous betting amount.
@@ -388,6 +419,7 @@ public class SlotMachine : MonoBehaviour {
 		_refresh ();
 		_resetButton.GetComponent<AudioSource>().Play (); // betting sound
 	}
+	// event handler for disabled button
 	public void onCreditButtonClick(int value) {
 		_isSpinned = true; // In order to start betting again from start 
 		_refresh ();
